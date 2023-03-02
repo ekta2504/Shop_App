@@ -37,20 +37,20 @@ class Orders with ChangeNotifier {
       loadedOrders.add(
         OrderItem(
             id: orderId,
-            amount: orderData['Amount'],
+            amount: orderData['amount'],
             dateTime: DateTime.parse(orderData['dateTime'],),
-            products: (orderData['products'])
+            products: (orderData['products'] as List<dynamic>)
                 .map((item) => CartsItem(
-                    id: item.id,
-                    price: item.price,
-                    quantity: item.quantity,
-                    title: item.title,
+                    id: item['id'],
+                    price: item['price'],
+                    quantity: item['quantity'],
+                    title: item['title'],
             ),
             ).toList(),
         ),
       );
     });
-    _orders=loadedOrders;
+    _orders=loadedOrders.reversed.toList();
     notifyListeners();
   }
 
