@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../screens/product_detail_screen.dart';
 import '../providers/product.dart';
 import '../providers/cart.dart';
+import '../providers/auth.dart';
 
 class ProductItem extends StatelessWidget {
   // final String id;
@@ -15,22 +16,23 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
     print('product rebuilt');
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pushNamed(
-              ProductDetailScreen.routeName,
-              arguments: product.id,
-            );
-          },
-          child: Image.network(
-            product.imageUrl,
-            fit: BoxFit.cover,
-          ),
-        ),
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                ProductDetailScreen.routeName,
+                arguments: product.id,
+              );
+            },
+            child: FadeInImage(
+              placeholder: AssetImage('lib/assets/images/t.png'),
+              image: NetworkImage(product.imageUrl),
+              fit: BoxFit.cover,
+            ),),
         footer: GridTileBar(
           backgroundColor: Colors.black87,
           leading: Consumer<Product>(
@@ -39,7 +41,8 @@ class ProductItem extends StatelessWidget {
                   product.isFavourite ? Icons.favorite : Icons.favorite_border,
                 ),
                 onPressed: () {
-                  product.toggleFavouriteStatus();
+                  product.toggleFavouriteStatus(
+                      authData.token, authData.userId);
                 },
                 color: Theme.of(context).accentColor),
             child: Text('Never Changes!'),
@@ -55,12 +58,16 @@ class ProductItem extends StatelessWidget {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Added item to Cart!',
+                    content: Text(
+                      'Added item to Cart!',
                     ),
                     duration: Duration(seconds: 2),
-                    action: SnackBarAction(label: 'UNDO',onPressed: (){
-                      cart.removeSingleItem(product.id);
-                    },),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        cart.removeSingleItem(product.id);
+                      },
+                    ),
                   ),
                 );
               },
